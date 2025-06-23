@@ -99,4 +99,22 @@ denido en Prolog y se llama member).
     append(Xlista,[Ultimo],Lista).*/
 last(Lista,Ultimo):-append(_,[Ultimo],Lista).
 
-reverse(L,R):-
+reverse([], []).                                         % Caso base
+reverse(L, [Ultimo|Resto]) :-                                    % U es último de L
+    last(L, Ultimo),                                          % Usamos tu predicado last/2
+    append(Init, [Ultimo], L),                                % L = Init ++ [U]
+    reverse(Init, Resto).                                   % Revertimos el resto
+
+prefijo(Pre, Lista):-
+    append(Pre,_, Lista).
+
+sufijo(Suf,Lista):-
+    append(_,Suf,Lista).
+
+sublista(Sub, Lista) :-
+    append(_, Suf, Lista),
+    Suf \= [],
+    append(Sub, _, Suf).
+
+pertenece(Elem,Lista):-
+    append(_,[Elem|_],Lista).
