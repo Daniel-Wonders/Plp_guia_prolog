@@ -1,4 +1,5 @@
 % ------------ 1 ----------
+
 padre(juan, carlos).
 padre(juan, luis).
 padre(carlos, daniel).
@@ -24,6 +25,7 @@ descendiente(X, Y) :- padre(Y, Z), descendiente(X, Z).  % Caso recursivo
 %V hermano(pablo,X).
 
 %----------------------- 3 -------------------
+
 /*Ejercicio 3 ⋆
 Considerar las siguientes deniciones:
 natural(0).
@@ -60,6 +62,7 @@ menorOIgual(X, suc(Y)) :-
     menorOIgual(X, Y).
 
 %--------------- 4 -------------
+
 /*enir el predicado juntar(?Lista1,?Lista2,?Lista3), que tiene éxito si Lista3 es la concatenación de
 Lista1 y Lista2. Por ejemplo:
 ?- juntar([a,b,c], [d,e], [a,b,c,d,e]). → true.
@@ -78,6 +81,7 @@ juntar([X|XS], L2, [X|ZS]) :-
     juntar(XS, L2, ZS).
 
 %---------------- 5 -----------------
+
 /*Denir los siguientes predicados sobre listas usando append:
 i. last(?L, ?U), donde U es el último elemento de la lista L.
 ii. reverse(+L, ?R), donde R contiene los mismos elementos que L, pero en orden inverso.
@@ -118,3 +122,54 @@ sublista(Sub, Lista) :-
 
 pertenece(Elem,Lista):-
     append(_,[Elem|_],Lista).
+
+%---------------- 6 --------------
+
+/*Denir el predicado aplanar(+Xs, -Ys), que es verdadero sii Ys contiene los elementos de todos los niveles de
+Xs, en el mismo orden de aparición. Los elementos de Xs son enteros, átomos o nuevamente listas, de modo que
+Xs puede tener una profundidad arbitraria. Por el contrario, Ys es una lista de un solo nivel de profundidad.
+Ejemplos:
+?- aplanar([a, [3, b, []], [2]], L).→ L=[a, 3, b, 2]
+?- aplanar([[1, [2, 3], [a]], [[[]]]], L).→ L=[1, 2, 3, a]
+Nota: este predicado ya está denido en prolog con el nombre flatten.*/
+%!aplanar(+Xs,-Ys)
+% Caso base: lista vacía
+aplanar([], []).
+
+% Caso recursivo: cabeza y cola son listas
+aplanar([X|XS], R) :-
+    aplanar(X, RX),        % Aplanar la cabeza
+    aplanar(XS, RXS),      % Aplanar la cola
+    append(RX, RXS, R).    % Combinar ambas
+
+% Caso base: X no es lista (ni [] ni [A|B]), lo metemos en lista unitaria
+aplanar(X, [X]) :-
+    X \= [],
+    X \= [_|_].    % Esto evita que X sea una lista (sin usar is_list)
+
+%---------------- 7 ------------------
+/*Denir los siguientes predicados, usando member y/o append según sea conveniente:
+i. intersección(+L1, +L2, -L3), tal que L3 es la intersección sin repeticiones de las listas L1 y L2, 
+respetando en L3 el orden en que aparecen los elementos en L1.
+partir(N, L, L1, L2), donde L1 tiene los N primeros elementos de L, y L2 el resto. Si L tiene menos de N
+elementos el predicado debe fallar. ¾Cuán reversible es este predicado? Es decir, ¾qué parámetros pueden
+estar indenidos al momento de la invocación?
+ii. borrar(+ListaOriginal, +X, -ListaSinXs), que elimina todas las ocurrencias de X de la lista
+ListaOriginal.
+iii. sacarDuplicados(+L1, -L2), que saca todos los elementos duplicados de la lista L1
+iv. permutación(+L1, ?L2), que tiene éxito cuando L2 es permutación de L1. ¾Hay una manera más eciente
+de denir este predicado para cuando L2 está instanciada?
+v. reparto(+L, +N, -LListas) que tenga éxito si LListas es una lista de N listas (N ≥ 1) de cualquier
+longitud - incluso vacías - tales que al concatenarlas se obtiene la lista L.
+vi. repartoSinVacías(+L, -LListas) similar al anterior, pero ninguna de las listas de LListas puede ser
+vacía, y la longitud de LListas puede variar.*/
+interseccion([], _, []).
+
+interseccion([X|XS], Y, [X|CS]) :-
+    member(X, Y),
+    interseccion(XS, Y, CS).
+
+interseccion([X|XS], Y, CS) :-
+    not(member(X, Y)),
+    interseccion(XS, Y, CS).
+
