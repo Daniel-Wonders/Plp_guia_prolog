@@ -300,3 +300,25 @@ cantidadDeNodos(bin(Izq,_,Der),Res):-
     Res is NodosDer + NodosIzq + 1. 
 
 %-------------- 12 ----------
+
+/*Denir los siguientes predicados, utilizando la representación de árbol binario denida en el ejercicio 11:
+i. inorder(+AB,-Lista), que tenga éxito si AB es un árbol binario y Lista la lista de sus nodos según el
+recorrido inorder.
+ii. arbolConInorder(+Lista,-AB), versión inversa del predicado anterior.
+iii. aBB(+T), que será verdadero si T es un árbol binario de búsqueda.
+iv. aBBInsertar(+X, +T1, -T2), donde T2 resulta de insertar X en orden en el árbol T1. Este predicado ¾es
+reversible en alguno de sus parámetros? Justicar.*/
+
+inorder(nil,[]).
+inorder(bin(Izq,V,Der), Res):-
+    inorder(Izq,ElemsIzq),
+    inorder(Der,ElemsDer),
+    append(ElemsIzq,[V|ElemsDer],Res).
+
+
+inorder2(nil,[]).
+inorder2(bin(Izq,V,Der), Res):-
+    inorder(Izq,ElemsIzq),
+    inorder(Der,ElemsDer),
+    append([V|ElemsDer],ElemsIzq,Res).
+    
