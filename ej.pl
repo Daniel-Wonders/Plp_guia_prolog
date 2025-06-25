@@ -226,10 +226,77 @@ parteQueSuma(XS,Suma,Res):-
     subconjunto(XS,Res),
     sumatoria(Res,Suma).
 
-subconjunto():-
-    
+subconjunto([], []).
+subconjunto([X|XS], [X|YS]) :- subconjunto(XS, YS). %usa un elemento de xs
+subconjunto([_|XS], YS) :- subconjunto(XS, YS).     %o no lo usa, pero en ambos casos sigue recorriendo
 
 sumatoria([], 0).
 sumatoria([X|XS], Suma) :-
     sumatoria(XS, Resto),
     Suma is X + Resto.
+
+%-------------- 9 ----------------
+
+/*Ejercicio 9 ⋆
+Considerar el siguiente predicado:
+desde(X,X).
+desde(X,Y) :- N is X+1, desde(N,Y).
+i. ¾Cómo deben instanciarse los parámetros para que el predicado funcione? (Es decir, para que no se cuelgue
+ni produzca un error). ¾Por qué?
+ii. Dar una nueva versión del predicado que funcione con la instanciación desdeReversible(+X,?Y), tal que
+si Y está instanciada, sea verdadero si Y es mayor o igual que X, y si no lo está genere todos los Y de X en
+adelante.*/
+
+
+%-------------- 10 -------------------
+
+/*Denir el predicado intercalar(L1, L2, L3), donde L3 es el resultado de intercalar uno a uno los elementos
+de las listas L1 y L2. Si una lista tiene longitud menor, entonces el resto de la lista más larga es pasado sin
+cambiar. Indicar la reversibilidad, es decir si es posible obtener L3 a partir de L1 y L2, y viceversa.
+Ejemplo: intercalar([a,b,c], [d,e], [a,d,b,e,c]).*/
+
+intercalar([],[],[]).
+intercalar([],Algo,Algo).
+intercalar(Algo,[],Algo).
+intercalar([X|XS],[Y|YS],[X,Y|CS]):- intercalar(XS,YS,CS).
+
+%Es reversible, puede generarse tanto L3 desde L1 y L2 como Generar todos los L1 y L2 desde L3
+
+%-------------- 11 ------------------
+
+/*Un árbol binario se representará en Prolog con:
+nil, si es vacío.
+bin(izq, v, der), donde v es el valor del nodo, izq es el subárbol izquierdo y der es el subárbol derecho.
+Denir predicados en Prolog para las siguientes operaciones: vacío, raiz, altura y cantidadDeNodos. Asumir
+siempre que el árbol está instanciado.*/
+% Un árbol binario de este estilo:
+%
+%        10
+%       /  \
+%      5   15
+%     / \    \
+%    2   7   20
+
+ejemploArbol(bin(bin(bin(nil, 2, nil), 5,bin(nil, 7, nil)),10,bin(nil,15,bin(nil, 20, nil)))).
+
+vacio(nil).
+
+altura(nil, 0).
+
+altura(bin(Izq, _, Der), Altura) :-
+    altura(Izq, AltIzq),
+    altura(Der, AltDer),
+    maximo(AltIzq, AltDer, MaxHijos),
+    Altura is MaxHijos + 1.
+
+maximo(X, Y, X) :- X >= Y.
+maximo(X, Y, Y) :- Y > X.
+
+%!cantidadDeNodos(+Arbol,-Cantidad)
+cantidadDeNodos(nil,0).
+cantidadDeNodos(bin(Izq,_,Der),Res):-
+    cantidadDeNodos(Izq, NodosIzq),
+    cantidadDeNodos(Der, NodosDer),
+    Res is NodosDer + NodosIzq + 1. 
+
+%-------------- 12 ----------
