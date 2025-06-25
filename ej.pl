@@ -173,3 +173,10 @@ interseccion([X|XS], Y, CS) :-
     not(member(X, Y)),
     interseccion(XS, Y, CS).
 
+borrar([],_,[]).
+borrar([X|XS],X,YS):-
+    borrar(XS,X,YS).
+
+borrar([X|XS], Elem, [X|Resto]) :-  % Si la cabeza no es Elem, la dejamos
+    X \= Elem,
+    borrar(XS, Elem, Resto).
