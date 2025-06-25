@@ -174,9 +174,62 @@ interseccion([X|XS], Y, CS) :-
     interseccion(XS, Y, CS).
 
 borrar([],_,[]).
-borrar([X|XS],X,YS):-
+borrar([X|XS],X,YS):-   
     borrar(XS,X,YS).
 
 borrar([X|XS], Elem, [X|Resto]) :-  % Si la cabeza no es Elem, la dejamos
     X \= Elem,
     borrar(XS, Elem, Resto).
+
+sacarDuplicados([],[]).
+sacarDuplicados([X|XS],[X|YS]):-
+    not(member(X,XS)),
+    sacarDuplicados(XS,YS).
+sacarDuplicados([X|XS],YS):-
+    member(X,XS),
+    sacarDuplicados(XS,YS).
+
+
+permutacion([], []).  % Caso base
+permutacion(L, [X|P]) :-
+    member(X, L),           % Elegimos un elemento
+    borrar(L, X, Resto),    % Lo quitamos de la lista original
+    permutacion(Resto, P).  % Permutamos el resto
+
+%!reparto(+L, +N, -LListas)
+reparto(L, N, LListas) :-
+    length(LListas, N),        % aseguramos que haya N listas
+    append(LListas, L).        % su concatenación debe dar L
+
+%!repartoSinVacías(+L, -LListas)
+reparto2(L, LListas) :-
+    length(LListas,_),
+    append(LListas, L),
+    noHayVacias(LListas).
+
+noHayVacias([]).
+noHayVacias([X|XS]):-
+    X \= [],
+    noHayVacias(XS).
+
+%------------------------------ 8 ------------------------
+
+/*Denir el predicado parteQueSuma(+L,+S,-P) que es verdadero cuando P es una lista con elementos de L que
+suman S. Por ejemplo:
+?- parteQueSuma([1,2,3,4,5],9,P).
+P = [1, 3, 5] ;
+P = [2, 3, 4] ;
+P = [4, 5] ;
+false.
+*/
+parteQueSuma(XS,Suma,Res):- 
+    subconjunto(XS,Res),
+    sumatoria(Res,Suma).
+
+subconjunto():-
+    
+
+sumatoria([], 0).
+sumatoria([X|XS], Suma) :-
+    sumatoria(XS, Resto),
+    Suma is X + Resto.
