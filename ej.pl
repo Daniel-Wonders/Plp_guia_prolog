@@ -358,7 +358,7 @@ aBBInsertar(Elem, bin(Izq, Raiz, Der), bin(Izq, Raiz, NuevoDer)) :-
 /*Denir el predicado coprimos(-X,-Y), que genere uno a uno todos los pares de números naturales coprimos
 (es decir, cuyo máximo común divisor es 1), sin repetir resultados. Usar la función gcd del motor aritmético.*/
 
-coprimos(X,Y):-  gcd(X,Y,1). % seria esto pero parece que no anda
+%coprimos(X,Y):-  gcd(X,Y,1). % seria esto pero parece que no anda gcd lol
 
 %--------------------- 14 -------------------
 
@@ -383,7 +383,65 @@ X = [[0, 2], [0, 2]] ;
 etc.
 ii. Denir utilizando Generate & Test el predicado cuadradoMagico(+N, -XS), que instancia XS con cuadrados cuyas las y columnas suman todas un mismo valor.*/
 
-cuadradoSemiMagico(_,[]).
-cuadradoSemiMagico(Largo,[Fila|Resto]):-
-    length(Fila,Largo),
-    sumatoria(Fila,between(0,)).
+%TBA
+
+%---------------- 15 ------------------
+
+/*En este ejercicio trabajaremos con triángulos. La expresión tri(A,B,C) denotará el triángulo cuyos lados tienen
+longitudes A, B y C respectivamente. Se asume que las longitudes de los lados son siempre números naturales.
+Implementar los siguientes predicados:
+i. esTriángulo(+T) que, dada una estructura de la forma tri(A,B,C), indique si es un triángulo válido.
+En un triángulo válido, cada lado es menor que la suma de los otros dos, y mayor que su diferencia (y
+obviamente mayor que 0).
+ii. perímetro(?T,?P), que es verdadero cuando T es un triángulo (válido) y P es su perímetro. No
+se deben generar resultados repetidos (no tendremos en cuenta la congruencia entre triángulos: si
+dos triángulos tienen las mismas longitudes, pero en diferente orden, se considerarán diferentes entre sí). 
+El predicado debe funcionar para cualquier instanciación de T y P (ambas instanciadas, ambas sin instanciar, 
+una instanciada y una no; no es necesario que funcione para triángulos parcialmente instanciados), debe generar todos los resultados válidos 
+(sean nitos o innitos), y no debe colgarse (es decir, no debe seguir ejecutando innitamente sin producir nuevos resultados). Por ejemplo:
+?- perímetro(tri(3,4,5),12). → true.
+?- perímetro(T,5). → T = tri(1, 2, 2) ; T = tri(2, 1, 2) ; T = tri(2, 2, 1) ; false.
+?- perímetro(tri(2,2,2),P). → P = 6.
+?- perímetro(T,P). → T = tri(1, 1, 1), P = 3 ; T = tri(1, 2, 2), P = 5 ; . . .
+iii. triángulo(-T), que genera todos los triángulos válidos, sin repetir resultados.*/
+
+tri(1,2,2).
+ladoValido(A,B,C):-
+    A > 0, B > 0, C > 0,
+    A < (B + C),
+    A > (B - C).
+%!esTriángulo(+T)
+esTriangulo(tri(A,B,C)):-
+    ladoValido(A,B,C),
+    ladoValido(B,A,C),
+    ladoValido(C,A,B).
+
+
+%!perímetro(?T,?P)
+perimetro(Tri,Per):-
+    generarPerimetro(3,P),
+    generarTriangulo(P, Tri),
+    esTriangulo(Tri).
+
+%!generarPerimetro(+P,?P)
+generarPerimetro(P,P).
+generarPerimetro(P,P2):-
+    Paux is P + 1,
+    generarPerimetro(Paux,P2).
+
+% generarTriangulo(+P, ?tri(A,B,C))
+generarTriangulo(P, tri(A,B,C)) :-
+    % 1) Reparto de P en tres lados ≥1
+    MaxA is P - 2,
+    between(1, MaxA, A),
+    Rem1 is P - A,
+    MaxB is Rem1 - 1,
+    between(1, MaxB, B),
+    C is P - A - B,
+    % 2) Poda mínima: desigualdades de triángulo
+    A + B > C,
+    A + C > B,
+    B + C > A.
+
+%!triángulo(-T)
+triangulo(Tri):-perimetro(Tri,_).
