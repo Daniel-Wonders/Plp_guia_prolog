@@ -115,10 +115,12 @@ prefijo(Pre, Lista):-
 sufijo(Suf,Lista):-
     append(_,Suf,Lista).
 
-sublista(Sub, Lista) :-
-    append(_, Suf, Lista),
-    Suf \= [],
-    append(Sub, _, Suf).
+sublista([],[]).
+sublista([X|XS], [X|Lista]):-
+    sublista(XS,Lista).
+sublista([_|XS], Lista):-
+    sublista(XS,Lista).
+
 
 pertenece(Elem,Lista):-
     append(_,[Elem|_],Lista).
@@ -418,7 +420,7 @@ esTriangulo(tri(A,B,C)):-
 
 
 %!perímetro(?T,?P)
-perimetro(Tri,Per):-
+perimetro(Tri,_):-
     generarPerimetro(3,P),
     generarTriangulo(P, Tri),
     esTriangulo(Tri).
@@ -445,3 +447,119 @@ generarTriangulo(P, tri(A,B,C)) :-
 
 %!triángulo(-T)
 triangulo(Tri):-perimetro(Tri,_).
+
+%--------------- 16 -------------
+frutal(frutilla).
+frutal(banana).
+frutal(manzana).
+cremoso(banana).
+cremoso(americana).
+cremoso(frutilla).
+cremoso(dulceDeLeche).
+leGusta(X) :- frutal(X), cremoso(X).
+cucurucho(X,Y) :- leGusta(X),!, leGusta(Y).
+/*                         cucurucho(X,Y)
+                              |
+                       leGusta(X) [A]
+                              |
+           frutal(X),cremoso(X) succeed?
+                      /       \
+             X = frutilla    backtrack frutal→banana
+                 |                    |
+            leGusta(frutilla)         frutal(X),cremoso(X) succeed?
+                 |                  /           \
+             succeeds           X = banana   backtrack banana→manzana
+                 |                 |
+        ┌────────┴────────┐        manzana es frutal sí, pero
+        │                 │        cremoso(manzana) falla → backtrack
+        |                 |
+[1] leGusta(X) ends      back to [A]: no more frutal → overall fail
+   with X=frutilla
+
+   └──> now Y for X=frutilla
+            leGusta(Y) [B]
+               |
+       frutal(Y),cremoso(Y)
+            /       \
+    Y=frutilla     backtrack frutal→banana
+        |                 |
+    cremoso(frutilla)   cremoso(banana)
+        |                 |
+ [Solution 1]         [Solution 2]
+ X=frutilla,Y=frutilla  X=frutilla,Y=banana
+        |                 |
+ backtrack [B]           backtrack [B]
+        |                 |
+ no more frutal → back to [A]
+
+── back to A for second branch:
+ X = banana
+      |
+   leGusta(banana)
+      |
+ succeeds
+      |
+ now Y for X=banana:
+   leGusta(Y) [C]
+      |
+ frutal(Y),cremoso(Y)
+      /       \
+ Y=frutilla  backtrack frutal→banana
+      |            |
+ cremoso(frutilla) cremoso(banana)
+      |            |
+[Solution 3]    [Solution 4]
+X=banana,Y=frutilla X=banana,Y=banana
+      |            |
+ backtrack [C]    backtrack [C]
+      |            |
+ no more frutal → back to [A]
+      | 
+ backtrack [A] 
+      |
+ no more frutal → end */
+
+ %---------------------- 17 ---------------
+
+ /*i. Sean los predicados P(?X) y Q(?X), ¾qué signica la respuesta a la siguiente consulta?
+?- P(Y), not(Q(Y)).
+Sea un Y tal que P(Y) sea true pero Q(Y) sea false, ej Y=1 P=Impar(X), Q=Par(X)
+ii. ¾Qué pasaría si se invirtiera el orden de los literales en la consulta anterior?
+Cuando ve esto:
+
+not(par(Y))
+Con Y libre, intenta demostrar que no existe ningún Y que haga par(Y) cierto.
+Como par(0) es cierto → entonces not(par(Y)) falla y nunca se evalúa impar(Y).
+
+iii. Sea el predicado P(?X), ¾Cómo se puede usar el not para determinar si existe una única Y tal que P(?Y)
+es verdadero?
+unicoP(Y) :-
+    P(Y),
+    not((P(X), X \= Y)).
+*/
+
+% ---------------- 18 ----------------
+
+/*Denir el predicado corteMásParejo(+L,-L1,-L2) que, dada una lista de números, realiza el corte más parejo
+posible con respecto a la suma de sus elementos (puede haber más de un resultado). Por ejemplo:
+?- corteMásParejo([1,2,3,4,2],L1,L2). → L1 = [1, 2, 3], L2 = [4, 2] ; false.
+?- corteMásParejo([1,2,1],L1,L2). → L1 = [1], L2 = [2, 1] ; L1 = [1, 2], L2 = [1] ; false.*/
+
+% corteMasParejo(+Lista, -L1, -L2)
+corteMasParejo(Lista, L1, L2) :-
+    generarDiferencia(0, D),                 % primero generamos una diferencia (de menor a mayor)
+    append(L1, L2, Lista),                   % partimos la lista en dos sublistas contiguas
+    sumatoria2(L1, S1),
+    sumatoria2(L2, S2),
+    D =:= abs(S1 - S2),!.                      % aceptamos solo si la diferencia real es la generada
+
+% Genera naturales crecientes: 0, 1, 2, ...
+generarDiferencia(P, P).
+generarDiferencia(P, P2) :-
+    P1 is P + 1,
+    generarDiferencia(P1, P2).
+
+sumatoria2([], 0).
+sumatoria2([X|XS], S) :-
+    sumatoria2(XS, SRest),
+    S is X + SRest.
