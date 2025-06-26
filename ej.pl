@@ -220,8 +220,8 @@ suman S. Por ejemplo:
 P = [1, 3, 5] ;
 P = [2, 3, 4] ;
 P = [4, 5] ;
-false.
-*/
+false.*/
+%!
 parteQueSuma(XS,Suma,Res):- 
     subconjunto(XS,Res),
     sumatoria(Res,Suma).
@@ -232,8 +232,10 @@ subconjunto([_|XS], YS) :- subconjunto(XS, YS).     %o no lo usa, pero en ambos 
 
 sumatoria([], 0).
 sumatoria([X|XS], Suma) :-
-    sumatoria(XS, Resto),
-    Suma is X + Resto.
+    Suma > 0,
+    between(0, Suma, X),
+    Restante is Suma - X,
+    sumatoria(XS, Restante).
 
 %-------------- 9 ----------------
 
@@ -320,5 +322,68 @@ inorder2(nil,[]).
 inorder2(bin(Izq,V,Der), Res):-
     inorder(Izq,ElemsIzq),
     inorder(Der,ElemsDer),
-    append([V|ElemsDer],ElemsIzq,Res).
-    
+    append([V,ElemsDer],ElemsIzq,Res). %no anda este, alta paja
+
+%!aBB(+Arbol)
+aBB(nil).
+aBB(Arbol):- 
+    inorder(Arbol,Res),
+    esListaOrdenada(Res).
+
+esListaOrdenada([]).
+esListaOrdenada([_]).
+esListaOrdenada([X, Y | Resto]) :-
+    X =< Y,
+    esListaOrdenada([Y | Resto]).
+
+%!aBBInsertar(+X,+T1,-T2)
+aBBInsertar(Elem,Arbol,Arbol):-
+    inorder(Arbol, Lista),
+    member(Elem, Lista),!.
+
+aBBInsertar(Elem,nil,bin(nil,Elem,nil)).
+
+% Caso 3: Elem es menor que la raíz, insertamos a la izquierda
+aBBInsertar(Elem, bin(Izq, Raiz, Der), bin(NuevoIzq, Raiz, Der)) :-
+    Elem < Raiz,
+    aBBInsertar(Elem, Izq, NuevoIzq).
+
+% Caso 4: Elem es mayor que la raíz, insertamos a la derecha
+aBBInsertar(Elem, bin(Izq, Raiz, Der), bin(Izq, Raiz, NuevoDer)) :-
+    Elem > Raiz,
+    aBBInsertar(Elem, Der, NuevoDer).
+
+%------------------- 13 -----------
+
+/*Denir el predicado coprimos(-X,-Y), que genere uno a uno todos los pares de números naturales coprimos
+(es decir, cuyo máximo común divisor es 1), sin repetir resultados. Usar la función gcd del motor aritmético.*/
+
+coprimos(X,Y):-  gcd(X,Y,1). % seria esto pero parece que no anda
+
+%--------------------- 14 -------------------
+
+/*Un cuadrado semi-mágico es una matriz cuadrada de naturales (incluido el cero) donde todas las las de la
+matriz suman lo mismo. Por ejemplo:
+1 3 0
+2 2 0 todas las las suman 4
+1 1 2
+Representamos la matriz como una lista de las, donde cada la es una lista de naturales. El ejemplo anterior
+se representaría de la siguiente manera: [[1,3,0],[2,2,0],[1,1,2]].
+i. Denir el predicado cuadradoSemiMágico(+N, -XS). El predicado debe ir devolviendo matrices 
+(utilizando la representación antes mencionada), que sean cuadrados semi-mágicos de dimensión N*N. Dichas
+matrices deben devolverse de manera ordenada: primero aquellas cuyas las suman 0, luego 1, luego 2,
+etc. No es necesario utilizar la técnica Generate & Test.
+Ejemplo: cuadradoSemiMágico(2,X). devuelve:
+X = [[0, 0], [0, 0]] ;
+X = [[0, 1], [0, 1]] ;
+X = [[0, 1], [1, 0]] ;
+X = [[1, 0], [0, 1]] ;
+X = [[1, 0], [1, 0]] ;
+X = [[0, 2], [0, 2]] ;
+etc.
+ii. Denir utilizando Generate & Test el predicado cuadradoMagico(+N, -XS), que instancia XS con cuadrados cuyas las y columnas suman todas un mismo valor.*/
+
+cuadradoSemiMagico(_,[]).
+cuadradoSemiMagico(Largo,[Fila|Resto]):-
+    length(Fila,Largo),
+    sumatoria(Fila,between(0,)).
