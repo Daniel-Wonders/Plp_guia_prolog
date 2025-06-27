@@ -285,6 +285,8 @@ ejemploArbol(bin(bin(bin(nil, 2, nil), 5,bin(nil, 7, nil)),10,bin(nil,15,bin(nil
 
 vacio(nil).
 
+raiz(bin(_,R,_),R).
+
 altura(nil, 0).
 
 altura(bin(Izq, _, Der), Altura) :-
