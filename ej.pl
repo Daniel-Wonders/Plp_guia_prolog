@@ -592,7 +592,6 @@ A = bin(nil, ka, nil) ;
 A = bin(nil, pow, nil) ;
 A = bin(nil, ka, bin(nil, ka, nil)) ;
 A = bin(nil, ka, bin(nil, pow, nil)) ;*/
-nodosEn()
 
 /*iii. Implementar un predicado sinRepEn(-A, +L) que genere todos los árboles cuyos nodos pertenezcan al alfabeto L y usando como máximo una
 vez cada símbolo del mismo. En este caso, no hay innitos árboles posibles; es importante que el predicado no devuelva soluciones repetidas y
@@ -605,3 +604,35 @@ A = bin(nil, ka, bin(nil, pow, nil)) ;
 ... ;
 No.*/
 
+%------------------ parcial 2C 2024
+
+creciente([]).
+creciente([_]).
+creciente([X,Y|XS]) :-
+    X =< Y,
+    creciente([Y|XS]).
+
+%!subsecuenciaCreciente(+L,-S) %
+subsecuenciaCreciente(Lista, Res):-
+    sublista(Lista,Res),
+    sort(Res,Res).
+
+%!subsecuenciaCrecienteMasLarga(+L,-S)
+subsecuenciaCrecienteMasLarga(Lista,Res):-
+    subsecuenciaCreciente(Lista,Res),
+    length(Res,ResLargo),
+    not((
+        subsecuenciaCreciente(Lista,Otra),
+        length(Otra,OtraLargo),
+        OtraLargo > ResLargo
+    )).
+
+% fibonacci(-X): genera todos los números de Fibonacci (con repeticiones al principio)
+fibonacci(X) :- fibGen(1, 1, X).
+
+% fibGen(A, B, X): genera los elementos de la sucesión partiendo desde A y B
+fibGen(A, _, A).          % Primer número
+fibGen(_, B, B).          % Segundo número
+fibGen(A, B, X) :-        % Resto de la sucesión
+    S is A + B,
+    fibGen(B, S, X).
