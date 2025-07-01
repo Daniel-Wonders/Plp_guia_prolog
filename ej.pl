@@ -636,3 +636,103 @@ fibGen(_, B, B).          % Segundo número
 fibGen(A, B, X) :-        % Resto de la sucesión
     S is A + B,
     fibGen(B, S, X).
+/*No, el predicado fibonacci(X) no es reversible en general, porque depende de is, que no es reversible.
+
+✔️ Funciona bien si X es una variable (para generar valores).
+❌ Falla o da error si X está instanciado con un número que no está en la secuencia (porque is no puede deshacerse).*/
+
+
+%---------- Parcial 2 ------------
+
+% Estudiantes
+
+
+% Notas: lista de triplas (Estudiante, Materia, Nota)
+% Estudiantes
+estudiante(ana).
+estudiante(luis).
+estudiante(pedro).
+
+% Lista de notas (fijate que es UNA lista en un único hecho)
+notas([
+    (ana, algebra, 2),
+    (ana, algebra, 5),
+    (ana, analisis, 3),
+    (ana, analisis, 4),
+    (ana, quimica, 2),
+    (luis, algebra, 3),
+    (luis, algebra, 2),
+    (luis, analisis, 7),
+    (pedro, fisica, 4),
+    (pedro, fisica, 6)
+]).
+
+
+
+%% pertenece(+Elemento, +Lista)
+pertenece(Elemento, [Elemento|_]).
+pertenece(Elemento, [_|Resto]) :-
+    pertenece(Elemento, Resto).
+
+%% a) tieneMateriaAprobada(+Estudiante, +Materia)
+tieneMateriaAprobada(Estudiante, Materia) :-
+    estudiante(Estudiante),
+    notas(ListaDeNotas),
+    pertenece((Estudiante, Materia, Calificacion), ListaDeNotas),
+    Calificacion >= 4.
+
+%% b) eliminarAplazos(+Notas, -NotasFiltradas)
+eliminarAplazos([], []).
+% 1) Si está aprobado, lo conservo
+eliminarAplazos([(Est, Mat, Cal)|Resto], [(Est, Mat, Cal)|Filtrado]) :-
+    Cal >= 4,
+    eliminarAplazos(Resto, Filtrado).
+% 2) Si es aplazo pero existe un aprobado posterior, lo elimino
+eliminarAplazos([(Est, Mat, Cal)|Resto], Filtrado) :-
+    Cal < 4,
+    pertenece((Est, Mat, CalAprob), Resto),
+    CalAprob >= 4,
+    eliminarAplazos(Resto, Filtrado).
+% 3) Si es aplazo y no hay aprobado posterior, lo conservo
+eliminarAplazos([(Est, Mat, Cal)|Resto], [(Est, Mat, Cal)|Filtrado]) :-
+    Cal < 4,
+    not((
+      pertenece((Est, Mat, CalAprob), Resto),
+      CalAprob >= 4
+    )),
+    eliminarAplazos(Resto, Filtrado).
+
+%% c) promedio(+Estudiante, -Promedio)
+promedio(Estudiante, Promedio) :-
+    notas(ListaDeNotas),
+    filtrarPorEstudiante(Estudiante, ListaDeNotas, NotasEstudiante),
+    eliminarAplazos(NotasEstudiante, NotasSinAplazos),
+    sumarCalificaciones(NotasSinAplazos, 0, SumaTotal),
+    length(NotasSinAplazos, CantidadMaterias),
+    CantidadMaterias > 0,
+    Promedio is SumaTotal / CantidadMaterias.
+
+% filtrarPorEstudiante(+Estudiante, +TodasLasNotas, -NotasDelEstudiante)
+filtrarPorEstudiante(_, [], []).
+filtrarPorEstudiante(Est, [(Est, Mat, Cal)|Resto], [(Est, Mat, Cal)|Filtrado]) :-
+    filtrarPorEstudiante(Est, Resto, Filtrado).
+filtrarPorEstudiante(Est, [(Otro, _, _)|Resto], Filtrado) :-
+    Est \= Otro,
+    filtrarPorEstudiante(Est, Resto, Filtrado).
+
+% sumarCalificaciones(+Notas, +Acumulador, -SumaFinal)
+sumarCalificaciones([], Acum, Acum).
+sumarCalificaciones([(_, _, Cal)|Resto], Acum, SumaFinal) :-
+    Acum1 is Acum + Cal,
+    sumarCalificaciones(Resto, Acum1, SumaFinal).
+
+%% d) mejorEstudiante(-Mejor)
+mejorEstudiante(Mejor) :-
+    estudiante(Mejor),
+    promedio(Mejor, PromMejor),
+    not((
+      estudiante(Otro),
+      Otro \= Mejor,
+      promedio(Otro, PromOtro),
+      PromOtro > PromMejor
+    )).
