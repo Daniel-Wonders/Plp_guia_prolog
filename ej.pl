@@ -549,11 +549,11 @@ posible con respecto a la suma de sus elementos (puede haber más de un resultad
 
 % corteMasParejo(+Lista, -L1, -L2)
 corteMasParejo(Lista, L1, L2) :-
-    generarDiferencia(0, D),                 % primero generamos una diferencia (de menor a mayor)
+    generarDiferencia(0, Differencia),                 % primero generamos una diferencia (de menor a mayor)
     append(L1, L2, Lista),                   % partimos la lista en dos sublistas contiguas
     sumatoria2(L1, S1),
     sumatoria2(L2, S2),
-    D =:= abs(S1 - S2),!.                      % aceptamos solo si la diferencia real es la generada
+    Differencia =:= abs(S1 - S2), !.                      % aceptamos solo si la diferencia real es la generada
 
 % Genera naturales crecientes: 0, 1, 2, ...
 generarDiferencia(P, P).
@@ -565,6 +565,91 @@ sumatoria2([], 0).
 sumatoria2([X|XS], S) :-
     sumatoria2(XS, SRest),
     S is X + SRest.
+% ------------ 20 ---------------
+/*Ejercicio 20 ⋆
+Un número poderoso es un número natural m tal que por cada número primo p que divide a m, p
+2
+también
+divide a m. Denir el predicado próximoNumPoderoso(+X,-Y) que instancie en Y el siguiente número poderoso
+a partir de X. */
+proximoNroPoderoso(In,Out):-
+    InDoble is In*2,
+    between(1,InDoble,P),
+    Out is P*P,
+    0 is mod(Out,P),
+    Out > In ,!.
+
+%----------- 22 ----------- 
+% ————————————————————————————————
+%   Consultas de ejemplo para caminoSimple/4
+%   caminoSimple(+G, +Desde, +Hasta, ?Camino)
+% ————————————————————————————————
+%% Ejemplos que deben SÍ tener solución:
+% 1) Camino directo de longitud 2: a → b → c
+%?- caminoSimple(g1, a, c, [a,b,c]).
+% true.
+% 2) Camino más largo: a → b → d → e → f
+%?- caminoSimple(g1, a, f, [a,b,d,e,f]).
+% true.
+% 3) Generación de todos los caminos simples de a a e:
+%?- caminoSimple(g1, a, e, L).
+% L = [a,b,d,e] ;
+% L = [a,b,c,e] ;
+% L = [a,d,e] ;
+% false.
+%% Ejemplos que deben FALLAR (no son caminos simples válidos):
+% 4) No existe arista directa b → f
+%?- caminoSimple(g1, b, f, [b,f]).
+% false.
+% 5) [a,b,a] no es simple (repite nodo)
+%?- caminoSimple(g1, a, a, [a,b,a]).
+% false.
+% 6) No hay camino entre a y un nodo inexistente x
+%?- esNodo(g1,x).          % false
+%?- caminoSimple(g1, a, x, L).
+% false.
+% ————————————————————————————————
+%   Base de conocimiento del grafo G1
+% ————————————————————————————————
+
+% esNodo(+Grafo, ?Nodo)
+esNodo(g1, a).
+esNodo(g1, b).
+esNodo(g1, c).
+esNodo(g1, d).
+esNodo(g1, e).
+esNodo(g1, f).
+
+% arista/3 guarda cada arista en una sola orientación
+arista(g1, a, b).
+arista(g1, b, c).
+arista(g1, b, d).
+arista(g1, c, e).
+arista(g1, d, e).
+arista(g1, e, f).
+
+% esArista(+Grafo, ?X, ?Y) responde indistintamente para (X,Y) o (Y,X)
+esArista(G,X,Y) :- arista(G,X,Y).
+esArista(G,X,Y) :- arista(G,Y,X).
+
+%!caminoSimple(+Grafo,+Nodo inicial,+Nodo final,?Lista de nodos) 
+% caminoSimple(+Grafo, +Inicio, +Fin, ?Camino)
+caminoSimple(G, D, H, Camino) :-
+    esNodo(G, D),
+    esNodo(G, H),
+    camino(G, D, H, [D], CaminoReverso),
+    reverse(CaminoReverso, Camino).
+
+% camino(+Grafo, +Actual, +Destino, +Visitados, -Camino)
+% Invariante: Actual ya está en Visitados
+camino(_, H, H, Visitados, Visitados).
+camino(G, Actual, Destino, Visitados, Camino) :-
+    esArista(G, Actual, Siguiente),
+    not(member(Siguiente, Visitados)),  % evita ciclos
+    camino(G, Siguiente, Destino, [Siguiente|Visitados], Camino).
+
+
+
 
 %------------- 23 ----------
 
@@ -736,3 +821,37 @@ mejorEstudiante(Mejor) :-
       promedio(Otro, PromOtro),
       PromOtro > PromMejor
     )).
+
+
+% Parcial Collatz y rotacion
+
+esRotacion(Entrada,Salida):-
+    append(Entrada,Entrada,Doble),
+    sublista(Doble, Salida),
+    length(Entrada,Largo),
+    length(Salida,Largo).
+
+
+collatz(N, N).
+
+collatz(N, X) :-
+    N > 1,
+    0 is N mod 2,
+    N2 is N / 2,
+    collatz(N2, X).
+
+collatz(N, X) :-
+    N > 1,
+    1 is N mod 2,
+    N2 is 3 * N + 1,
+    collatz(N2, X).
+
+% No, no es reversible, Prolog no puede “deshacer” las operaciones mod/2 ni // ni la suma 3*N+1
+
+collatzMayor(In,Out):-
+    collatz(In,Out),
+    not((
+        collatz(In,Otro),
+        Otro>Out
+    )).
+
