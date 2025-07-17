@@ -648,9 +648,44 @@ camino(G, Actual, Destino, Visitados, Camino) :-
     not(member(Siguiente, Visitados)),  % evita ciclos
     camino(G, Siguiente, Destino, [Siguiente|Visitados], Camino).
 
+% inciso b: Hamiltoniano
+hamiltoniano(Grago,Camino):-
+    head(Camino,Nodo1),
+    ultimo(Camino,NodoF),
+    caminoSimple(Grago,Nodo1,NodoF,Camino),
+    todosLosNodos(Grago,Nodos),
+    length(Nodos,Largo),
+    length(Camino,Largo). 
+    
+head([X],X).
+head([X|_],X).
 
+ultimo([X],X).
+ultimo([_|XS],Resto):-
+    ultimo(XS,Resto).
 
+caminoValido(_,[_]).
+caminoValido(Grafo,[X,Y|Resto]):-
+    esArista(Grafo,X,Y),
+    caminoValido(Grafo,[Y|Resto]).
 
+%% todosLosNodos(+Grafo,‑ListaNodos)
+%% ListaNodos es la lista de todos los nodos de Grafo, sin repeticiones.
+todosLosNodos(G,L) :-
+    todosNodosAcc(G,[],Acc),      % acumula sin repetidos
+    reverse(Acc,L).               % y al final invierte para respetar orden
+
+%% Caso de parada: no hay más nodos nuevos que agregar
+todosNodosAcc(G,Acc,Acc) :-
+    \+ ( esNodo(G,N),            % no existe un N que
+         \+ member(N,Acc)     % sea nodo y no esté ya en Acc
+       ).
+
+%% Paso recursivo: encuentra un nodo N que aún no esté en Acc, lo añade
+todosNodosAcc(G,Acc,Res) :-
+    esNodo(G,N),
+    \+ pertenece(N,Acc),
+    todosNodosAcc(G,[N|Acc],Res).
 %------------- 23 ----------
 
 /*Trabajaremos con árboles binarios, usando nil y bin(AI, V, AD) para representarlos en Prolog.
@@ -662,11 +697,48 @@ A = nil ;
 A = bin(nil, _G2388, nil) ;
 A = bin(nil, _G2391, bin(nil, _G2398, nil)) ;
 A = bin(bin(nil, _G2398, nil), _G2391, nil) ;*/
-arbol(nil).
-arbol(bin(I,_,D)):-
-    arbol(I),
-    arbol(D).
-/*ii. Implementar un predicado nodosEn(?A, +L) que es verdadero
+arbol(Arbol):-
+    generarAltura(0,Altura),
+    arbolConXNodos(Arbol,Altura).
+
+arbolConXNodos(Arbol,Cant):-
+    generarArbol(Arbol),
+    cantNodos(Arbol,Cant).
+
+cantNodos(nil,0).
+cantNodos(bin(I,_,D),Res):-
+    cantNodos(I,R1),
+    cantNodos(D,R2),
+    Res is 1+ R1 + R2.
+
+generarArbol(nil).
+generarArbol(bin(I,_,D)):-
+    generarArbol(I),
+    generarArbol(D).
+
+generarAltura(N,N).
+generarAltura(P,P2):-
+    P1 is P + 1,
+    generarAltura(P1, P2).
+/*
+arbol_de_altura(0, nil).
+arbol_de_altura(H, bin(I, _, D)) :-
+  H > 0,
+  H1 is H - 1,
+  % Si el árbol tiene altura H, uno de los subárboles
+  % puede tener altura H1 y el otro ≤ H1, o viceversa:
+  arbol_de_altura(H1, I),
+  arbol_de_altura(Otra, D),
+  Otra =< H1.
+
+
+altura2(nil,0).
+altura2(bin(I,_,D),Res):-
+    altura2(I,A1),
+    altura2(D,A2),
+    Res is 1+ max(A1,A2).
+
+ii. Implementar un predicado nodosEn(?A, +L) que es verdadero
 cuando A es un árbol cuyos nodos pertenecen al conjunto conjunto
 de átomos L (representado mediante una lista no vacía, sin orden
 relevante y sin repetidos). Puede asumirse que el árbol se recibe
@@ -688,6 +760,46 @@ A = bin(nil, ka, nil) ; ...
 A = bin(nil, ka, bin(nil, pow, nil)) ;
 ... ;
 No.*/
+% Parcial 2024 2c
+subsecuencia([],_).
+subsecuencia([X|XS],[X|Resto]):-
+    subsecuencia(XS,Resto).
+subsecuencia([_|XS],Resto):-
+    subsecuencia(XS,Resto).
+
+subsecuenciaCreciente2(Lista,Res):-
+    subsecuencia(Lista,Res),
+    esCreciente(Res).
+
+esCreciente([_]).
+esCreciente([X,Y|XS]):-
+    X=<Y,
+    esCreciente([Y|XS]).
+
+subsecuenciaCrecienteMasLarga2(L, Res) :-
+    subsecuenciaCreciente2(L, Res),
+    length(Res, LargoF),
+    not((
+      subsecuenciaCreciente2(L, Otro),
+      length(Otro, LargoO),
+      LargoO > LargoF
+    )).
+
+
+
+
+fibonacci2(N) :-
+    fibonacciAux(1, 1, N).
+
+fibonacciAux(_, A, A).
+
+fibonacciAux(A, B, Res) :-
+    Sum is A + B,
+    fibonacciAux(B, Sum, Res).
+
+%No es reversible, pues para los valores que no estan en la secuencia de fibonacci, 
+% va a intentar matchear infinitamente sin exito en el caso base de fiboAux
+
 
 %------------------ parcial 2C 2024
 
