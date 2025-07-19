@@ -1034,3 +1034,48 @@ mejorEstudiante2(Est):-
         promedio2(OtroEst,Otro),
         Otro >Prom
     )).
+
+
+
+% ------------- 2024 1C --------
+
+generarCapicuas(Lista) :-
+    desde2(1,Largo),
+    listaDeLargoN(Largo,Lista),
+    esCapicua(Lista).
+
+esCapicua(XS):-
+    append(Izq,Der,XS),
+    reverse(Izq,Der).
+esCapicua(XS):-
+    append(Izq,[_|Der],XS),
+    reverse(Izq,Der).
+
+listaDeLargoN(0, []).
+listaDeLargoN(N, [X|XS]) :-
+    N > 0,
+    between(1, 9, X),
+    N1 is N - 1,
+    listaDeLargoN(N1, XS).
+
+desde2(N,N).
+desde2(N,N2):-
+    NAux is N+1,
+    desde2(NAux,N2).
+
+tokenizar(_,[],[]).
+tokenizar(Dict,Frase,[Pal|XS]):-
+    append(Pal,Resto,Frase),
+    member(Pal,Dict),
+    tokenizar(Dict,Resto,XS).
+
+
+%!mayorCantPalabras(+D,+F,-T) 
+mayorCantPalabras(Dict, Frase, Res) :-
+    tokenizar(Dict, Frase, Res),
+    length(Res, Largo),
+    not((
+        tokenizar(Dict, Frase, Otro),
+        length(Otro, OtroL),
+        OtroL > Largo
+    )).
