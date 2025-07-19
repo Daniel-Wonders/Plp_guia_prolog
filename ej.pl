@@ -967,3 +967,70 @@ collatzMayor(In,Out):-
         Otro>Out
     )).
 
+%----------- 2024 1C -----------
+estudiante2(ana).
+estudiante2(luis).
+estudiante2(pedro).
+
+% Lista de notas (fijate que es UNA lista en un único hecho)
+notas2([
+    (ana, algebra, 2),
+    (ana, algebra, 5),
+    (ana, analisis, 3),
+    (ana, analisis, 4),
+    (ana, quimica, 2),
+    (luis, algebra, 3),
+    (luis, algebra, 2),
+    (luis, analisis, 7),
+    (pedro, fisica, 2),
+    (pedro, fisica, 6)
+]).
+
+tieneMateriaAprobada2(Est,Mat):-
+    estudiante2(Est),
+    notas2(Notas),
+    member((Est,Mat,Nota),Notas),
+    Nota >=4.
+
+
+
+eliminarAplazos2([],[]).
+eliminarAplazos2([(Est,Mat,Nota)|Resto],[(Est,Mat,Nota)|Res]):-
+    Nota < 4,
+    not(tieneMateriaAprobada2(Est,Mat)),
+    eliminarAplazos2(Resto,Res).
+eliminarAplazos2([(Est,Mat,Nota)|Resto],[(Est,Mat,Nota)|Res]):-
+    Nota >= 4,
+    eliminarAplazos2(Resto,Res).
+
+eliminarAplazos2([(Est,Mat,Nota)|Resto],Res):-
+    Nota <4,
+    tieneMateriaAprobada2(Est,Mat),
+    eliminarAplazos2(Resto,Res).
+
+
+
+promedio2(Est,Res):-
+    notas2(NotasCrudo),
+    eliminarAplazos2(NotasCrudo,NotasBien),
+    acumulador(Est,0,0,NotasBien,Res).
+
+acumulador(_,Acum,Cont,[],Res):-
+        Res is Acum/Cont.
+acumulador(Est,Acum,Cont,[(Est,_,Nota)|Resto],Res):-
+    AcumRes is Acum + Nota,
+    ContRes is Cont + 1,
+    acumulador(Est, AcumRes,ContRes,Resto,Res).
+acumulador(Est,Acum,Cont,[(OtroEst,_,_)|Resto],Res):-
+    Est \= OtroEst,
+    acumulador(Est, Acum,Cont,Resto,Res).
+
+mejorEstudiante2(Est):-
+    estudiante2(Est),
+    promedio2(Est,Prom),
+    not((
+        estudiante2(OtroEst),
+        OtroEst\=Est,
+        promedio2(OtroEst,Otro),
+        Otro >Prom
+    )).
