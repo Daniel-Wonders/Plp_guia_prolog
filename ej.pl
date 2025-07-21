@@ -1079,3 +1079,46 @@ mayorCantPalabras(Dict, Frase, Res) :-
         length(Otro, OtroL),
         OtroL > Largo
     )).
+
+
+%---------- 2024 2C ----------
+
+%!subsecuenciaCreciente(+L,-S) 
+subsecuenciaCreciente2(Sub,Set):-
+    sublista2(Sub,Set),
+    esCreciente2(Set).
+
+sublista2([],[]).
+sublista2([X|XS],[X|Rest]):-
+    sublista2(XS,Rest).
+sublista2([_|XS],Rest):-
+    sublista2(XS,Rest).
+
+esCreciente2([]).
+esCreciente2([X,Y|XS]):-
+    X<Y,
+    esCreciente2([Y|YS]).
+
+%2
+%!subsecuenciaCrecienteMasLarga(+L,-S) 
+subsecuenciaCrecienteMasLarga2(In,Res):-
+    subsecuenciaCreciente2(In,Res),
+    length(Res,ResL),
+    not((
+        subsecuenciaCreciente2(In,Otro),
+        length(Otro,OtroL),
+        OtroL > ResL
+    )).
+
+%3
+%!fibonacci(-N)
+fibonacci3(Res):-
+    fiboAux2(1,1,Res).
+
+fiboAux2(N1,_,N1).
+fiboAux2(N1,N2,Res):-
+    Naux is N1 + N2,
+    fiboAux2(N2,Naux,Res).
+
+%No se reversible porque esta implementacion al encontrar o no el valor, despues va a seguir generando numeros infinitamente
+
