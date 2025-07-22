@@ -1120,5 +1120,6 @@ fiboAux2(N1,N2,Res):-
     Naux is N1 + N2,
     fiboAux2(N2,Naux,Res).
 
-%No se reversible porque esta implementacion al encontrar o no el valor, despues va a seguir generando numeros infinitamente
+%No se reversible porque esta implementacion al encontrar o no el valor, despues va a seguir generando numeros infinitamente a ver si otro unifica
 
+ 
