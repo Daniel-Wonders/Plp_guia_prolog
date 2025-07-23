@@ -1122,4 +1122,9 @@ fiboAux2(N1,N2,Res):-
 
 %No se reversible porque esta implementacion al encontrar o no el valor, despues va a seguir generando numeros infinitamente a ver si otro unifica
 
- 
+ unico(L,R):-
+    member(R,L),
+    not((
+        member(Otro,L),
+        Otro==R
+    )).
