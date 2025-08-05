@@ -1128,3 +1128,5 @@ fiboAux2(N1,N2,Res):-
         member(Otro,L),
         Otro==R
     )).
+
+
