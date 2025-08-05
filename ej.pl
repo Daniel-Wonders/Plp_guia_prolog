@@ -1122,11 +1122,19 @@ fiboAux2(N1,N2,Res):-
 
 %No se reversible porque esta implementacion al encontrar o no el valor, despues va a seguir generando numeros infinitamente a ver si otro unifica
 
- unico(L,R):-
-    member(R,L),
-    not((
-        member(Otro,L),
-        Otro==R
-    )).
 
+arbonGeneral(XS):-
+    desde2(0,L),
+    arbolDeLargo(XS,L).
 
+arbolDeLargo(x,1).
+arbolDeLargo([],1).
+
+arbolDeLargo(XS,L):-
+    L>0,
+    Laux is L-1,
+    between(1,Laux,L2),
+    LF is Laux-L2,
+    arbolDeLargo(Parte1,L2),
+    arbolDeLargo(Parte2,LF),
+    append([Parte1],[Parte2],XS).
