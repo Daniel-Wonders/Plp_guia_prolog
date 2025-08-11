@@ -1138,3 +1138,19 @@ arbolDeLargo(XS,L):-
     arbolDeLargo(Parte1,L2),
     arbolDeLargo(Parte2,LF),
     append([Parte1],[Parte2],XS).
+
+esPuto(kuka).
+esPuto(mcThroatJob).
+esPuto(aguacaer).
+esPuto(divan).
+esPuto(guero).
+esPuto(bauty).
+
+grupo(C):-
+    esGrupo(C,C).
+    length(C,3).
+
+esGrupo([],Res).
+esGrupo([X|XS],[X|YS]):-
+    esPuto(X),
+    esGrupo(XS,YS).
